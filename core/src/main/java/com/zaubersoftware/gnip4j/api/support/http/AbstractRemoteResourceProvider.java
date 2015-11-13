@@ -16,6 +16,8 @@
 package com.zaubersoftware.gnip4j.api.support.http;
 
 import java.net.URI;
+import com.zaubersoftware.gnip4j.api.support.logging.LoggerFactory;
+import com.zaubersoftware.gnip4j.api.support.logging.spi.Logger;
 
 import com.zaubersoftware.gnip4j.api.RemoteResourceProvider;
 import com.zaubersoftware.gnip4j.api.exception.AuthenticationGnipException;
@@ -31,12 +33,15 @@ import com.zaubersoftware.gnip4j.api.exception.TransportGnipException;
 public abstract class AbstractRemoteResourceProvider implements RemoteResourceProvider {
     protected static final String USER_AGENT = "Gnip4j (https://github.com/zaubersoftware/gnip4j/)";
     
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    
     /** validate responses */
     public final void validateStatusLine(final URI uri, final int statusCode, final String reason,
             final ErrorProvider errorProvider) {
         if (statusCode >= 200 && statusCode <= 299) {
             // nothing to do
         } else { 
+        	logger.warn(String.format("handling gnip error response: code: %d reason:%s", statusCode, reason));
             String msg = null;
             if(errorProvider != null) {
               msg = errorProvider.getError();
