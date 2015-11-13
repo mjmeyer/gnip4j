@@ -28,7 +28,8 @@ import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-
+import com.zaubersoftware.gnip4j.api.support.logging.LoggerFactory;
+import com.zaubersoftware.gnip4j.api.support.logging.spi.Logger;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -47,10 +48,13 @@ import com.zaubersoftware.gnip4j.api.support.base64.spi.Base64PasswordEncoder;
  * @since May 23, 2011
  */
 public class JRERemoteResourceProvider extends AbstractRemoteResourceProvider {
+	
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	
     private final GnipAuthentication authentication;
     private final Base64PasswordEncoder encoder = Base64PasswordEncoderFactory.getEncoder();
     private final int connectTimeout = 10000;
-    private final int readTimeout = 35000;
+    private final int readTimeout = 65000;
     
     /** Creates the JRERemoteResourceProvider. */
     public JRERemoteResourceProvider(final GnipAuthentication authentication) {
@@ -236,7 +240,7 @@ public class JRERemoteResourceProvider extends AbstractRemoteResourceProvider {
         public String getError() {
             try {
                 final InputStream is = JRERemoteResourceProvider.getRealInputStream(huc, huc.getErrorStream());
-                if(huc.getContentType().startsWith("application/json")) {
+                if(huc.getContentType() != null && huc.getContentType().startsWith("application/json")) {
                     return m.readValue(is, Errors.class).getError().getMessage();
                 } else {
                     return toInputStream(is); 
