@@ -73,6 +73,7 @@ public class JRERemoteResourceProvider extends AbstractRemoteResourceProvider {
             TransportGnipException {
         
         try {
+        	logger.info("GET: " + uri.toString());
             final URLConnection uc = uri.toURL().openConnection();
             HttpURLConnection huc = null;
             
@@ -87,12 +88,15 @@ public class JRERemoteResourceProvider extends AbstractRemoteResourceProvider {
             uc.setRequestProperty("User-Agent", USER_AGENT);
             uc.setRequestProperty ("Authorization", "Basic " + encoder.encode(authentication));
             doConfiguration(uc);
+
             uc.connect();
-            
+            logger.info("CONNECT DONE @ " + uri.toString());
             if(huc != null) {
+            	logger.info("CHECKING STATUS @ " + uri.toString());
                 validateStatusLine(uri, huc.getResponseCode(), huc.getResponseMessage(), 
                                    new DefaultErrorProvider(huc));
             }
+            logger.info("GETTING stream @ " + uri.toString());
             final InputStream is = getRealInputStream(uc, uc.getInputStream()); 
             
             return new JREReleaseInputStream(uc, is);
@@ -213,6 +217,9 @@ public class JRERemoteResourceProvider extends AbstractRemoteResourceProvider {
     }
     
     static final String toInputStream(final InputStream is) {
+    	if (is == null){
+    		return "";
+    	}
         try {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             byte []buff = new byte[4096];
